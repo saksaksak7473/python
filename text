@@ -1,7 +1,7 @@
 >> How to push code to Github
 
 git add .
-git commit -am"l"
+git commit -am"text"
 git push
 
 >> How to pull code from Github
