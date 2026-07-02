@@ -106,18 +106,7 @@ class MapGeneration:
         elif index == 0 and self.current_map != "Map1":
             self.current_map = self.v[self.v.index(self.current_map) - 1]
             print(self.current_map)
-
             
-        
-                        
-                        
-                
-                        
-       
-       
-    
-    
-
 player = Player(375.00, 275.00)
 MainMap = MapGeneration()
 while running:

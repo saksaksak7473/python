@@ -1,0 +1,9 @@
+>> How to push code to Github
+
+git add .
+git commit -am"l"
+git push
+
+>> How to pull code from Github
+
+git pull
