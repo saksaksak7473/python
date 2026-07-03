@@ -104,37 +104,37 @@ Maps = [
     # Walls
     [
         [
-            [Block(100, 100, 25, 300), Block(100, 100, 400, 25)],
-            [Block(200, 200, 400, 25), Block(200, 200, 25, 300)],
-            [Block(300, 300, 25, 300), Block(300, 300, 400, 25)]
+            [Block(100, 100, 25, 300), Block(100, 100, 400, 25)], # Walls in Map 1
+            [Block(200, 200, 400, 25), Block(200, 200, 25, 300)], # Walls in Map 2
+            [Block(300, 300, 25, 300), Block(300, 300, 400, 25)] # Walls in Map 3
         ],
         [
-            [Block(400, 400, 25, 300), Block(400, 400, 400, 25)],
-            [Block(500, 500, 400, 25), Block(500, 500, 25, 300)],
-            [Block(600, 400, 25, 300), Block(400, 400, 400, 25)]
+            [Block(400, 400, 25, 300), Block(400, 400, 400, 25)], # Walls in Map 4
+            [Block(500, 500, 400, 25), Block(500, 500, 25, 300)], # Walls in Map 5
+            [Block(600, 400, 25, 300), Block(400, 400, 400, 25)] # Walls in Map 6
         ],
         [
-            [Block(700, 300, 25, 300), Block(300, 300, 400, 25)],
-            [Block(600, 200, 400, 25), Block(200, 200, 25, 300)],
-            [Block(700, 100, 25, 300), Block(100, 100, 400, 25)]
+            [Block(700, 300, 25, 300), Block(300, 300, 400, 25)], # Walls in Map 7
+            [Block(600, 200, 400, 25), Block(200, 200, 25, 300)], # Walls in Map 8
+            [Block(700, 100, 25, 300), Block(100, 100, 400, 25)] # Walls in Map 9
         ]
     ],
     # Doors
     [
         [
-            [Block(350, HEIGHT - 5, 100, 5), Block(WIDTH - 5, 250, 5, 100)],
-            [Block(350, HEIGHT - 5, 100, 5), Block(WIDTH - 5, 250, 5, 100), Block(0, 250, 5, 100)],
-            [Block(0, 250, 5, 100), Block(350, HEIGHT - 5, 100, 5)]
+            [Block(350, HEIGHT - 5, 100, 5), Block(WIDTH - 5, 250, 5, 100)], # Doors in Map 1
+            [Block(350, HEIGHT - 5, 100, 5), Block(WIDTH - 5, 250, 5, 100), Block(0, 250, 5, 100)], # Doors in Map 2
+            [Block(0, 250, 5, 100), Block(350, HEIGHT - 5, 100, 5)] # Doors in Map 3
         ],
         [
-            [Block(350, 0, 100, 5), Block(WIDTH - 5, 250, 5, 100), Block(350, HEIGHT - 5, 100, 5)],
-            [Block(350, HEIGHT - 5, 100, 5), Block(WIDTH - 5, 250, 5, 100), Block(0, 250, 5, 100), Block(350, 0, 100, 5)],
-            [Block(0, 250, 5, 100), Block(350, HEIGHT - 5, 100, 5), Block(350, 0, 100, 5)]
+            [Block(350, 0, 100, 5), Block(WIDTH - 5, 250, 5, 100), Block(350, HEIGHT - 5, 100, 5)], # Doors in Map 4
+            [Block(350, HEIGHT - 5, 100, 5), Block(WIDTH - 5, 250, 5, 100), Block(0, 250, 5, 100), Block(350, 0, 100, 5)], # Doors in Map 5
+            [Block(0, 250, 5, 100), Block(350, HEIGHT - 5, 100, 5), Block(350, 0, 100, 5)] # Doors in Map 6
         ],
         [
-            [Block(350, 0, 100, 5), Block(WIDTH - 5, 250, 5, 100)],
-            [Block(350, 0, 100, 5), Block(0, 250, 5, 100), Block(WIDTH - 5, 250, 5, 100)],
-            [Block(0, 250, 5, 100), Block(350, 0, 100, 5)]
+            [Block(350, 0, 100, 5), Block(WIDTH - 5, 250, 5, 100)], # Doors in Map 7
+            [Block(350, 0, 100, 5), Block(0, 250, 5, 100), Block(WIDTH - 5, 250, 5, 100)], # Doors in Map 8
+            [Block(0, 250, 5, 100), Block(350, 0, 100, 5)] # Doors in Map 9
         ]
     ]
 ]        
