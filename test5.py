@@ -13,7 +13,7 @@ class Player:
         self.color = 'Blue'
         self.speed = 5
     
-    def move(self, Maps, Frames, index):
+    def move(self, Maps, Frames, X, Y):
         dx = 0
         dy = 0
         dv = 0
@@ -31,48 +31,56 @@ class Player:
             dy += self.speed + dv
         
         self.player.x += dx
-        for doors in Maps[1][index]:
-            if self.player.colliderect(doors.new_door):
+        doors = Maps[1][Y][X]
+        for door in doors:
+            if self.player.colliderect(door.new_door):
                 self.player.x, self.player.y = 10, 10
                 if dx > 0:
-                    return index + 1
+                    return X + 1, Y
                 elif dx < 0:
-                    return index - 1
+                    return X - 1, Y
+                
         for frame in Frames:
             if self.player.colliderect(frame):
                 if dx > 0:
                     self.player.right = frame.left
                 elif dx < 0:
                     self.player.left = frame.right
-        for walls in Maps[0][index]:
-            if self.player.colliderect(walls.new_wall):
+                    
+        walls = Maps[0][Y][X]
+        for wall in walls:
+            if self.player.colliderect(wall.new_wall):
                 if dx > 0:
-                    self.player.right = walls.new_wall.left
+                    self.player.right = wall.new_wall.left
                 elif dx < 0:
-                    self.player.left = walls.new_wall.right
+                    self.player.left = wall.new_wall.right
 
         self.player.y += dy
-        for doors in Maps[1][index]:
-            if self.player.colliderect(doors.new_door):
+        doors = Maps[1][Y][X]
+        for door in doors:
+            if self.player.colliderect(door.new_door):
                 self.player.x, self.player.y = 10, 10
                 if dy > 0:
-                    return index + 1
+                    return X, Y + 1
                 elif dy < 0:
-                    return index - 1
+                    return X, Y - 1
+                
         for frame in Frames:
             if self.player.colliderect(frame):
                 if dy > 0:
                     self.player.bottom = frame.top
                 elif dy < 0:
                     self.player.top = frame.bottom
-        for walls in Maps[0][index]:
-            if self.player.colliderect(walls.new_wall):
+                    
+        walls = Maps[0][Y][X]
+        for wall in walls:
+            if self.player.colliderect(wall.new_wall):
                 if dy > 0:
-                    self.player.bottom = walls.new_wall.top
+                    self.player.bottom = wall.new_wall.top
                 elif dy < 0:
-                    self.player.top = walls.new_wall.bottom
+                    self.player.top = wall.new_wall.bottom
 
-        return index
+        return X, Y
     
     def draw(self, screen):
         pygame.draw.rect(screen, self.color, self.player)
@@ -95,18 +103,45 @@ Frames = [pygame.Rect(0, 0, 5, HEIGHT - 5), pygame.Rect(0, HEIGHT - 5, WIDTH - 5
 Maps = [
     # Walls
     [
-        [Block(100, 100, 25, 300), Block(200, 300, 400, 25)],
-        [Block(200, 500, 400, 25), Block(400, 200, 25, 300)]
+        [
+            [Block(100, 100, 25, 300), Block(200, 300, 400, 25)],
+            [Block(200, 500, 400, 25), Block(400, 200, 25, 300)],
+            [Block(100, 100, 25, 300), Block(200, 300, 400, 25)]
+        ],
+        [
+            [Block(100, 100, 25, 300), Block(200, 300, 400, 25)],
+            [Block(200, 500, 400, 25), Block(400, 200, 25, 300)],
+            [Block(100, 100, 25, 300), Block(200, 300, 400, 25)]
+        ],
+        [
+            [Block(100, 100, 25, 300), Block(200, 300, 400, 25)],
+            [Block(200, 500, 400, 25), Block(400, 200, 25, 300)],
+            [Block(100, 100, 25, 300), Block(200, 300, 400, 25)]
+        ]
     ],
     # Doors
     [
-        [Block(350, HEIGHT - 5, 100, 5), Block(WIDTH - 5, 250, 5, 100)],
-        [Block(350, HEIGHT - 5, 100, 5), Block(WIDTH - 5, 250, 5, 100), Block(0, 250, 5, 100)]
+        [
+            [Block(350, HEIGHT - 5, 100, 5), Block(WIDTH - 5, 250, 5, 100)],
+            [Block(350, HEIGHT - 5, 100, 5), Block(WIDTH - 5, 250, 5, 100), Block(0, 250, 5, 100)],
+            [Block(5, 250, 5, 100), Block(350, HEIGHT - 5, 100, 5)]
+        ],
+        [
+            [Block(350, 0, 100, 5), Block(WIDTH - 5, 250, 5, 100), Block(350, HEIGHT - 5, 100, 5)],
+            [Block(350, HEIGHT - 5, 100, 5), Block(WIDTH - 5, 250, 5, 100), Block(0, 250, 5, 100), Block(350, 0, 100, 5)],
+            [Block(0, 250, 5, 100), Block(350, HEIGHT - 5, 100, 5), Block(350, 0, 100, 5)]
+        ],
+        [
+            [Block(350, 0, 100, 5), Block(WIDTH - 5, 250, 5, 100)],
+            [Block(350, 0, 100, 5), Block(0, 250, 5, 100), Block(WIDTH - 5, 250, 5, 100)],
+            [Block(0, 250, 5, 100), Block(350, 0, 100, 5)]
+        ]
     ]
 ]        
 
 running = True
-CurrentMap = 0
+CurrentMapX = 0
+CurrentMapY = 0
 
 player = Player(10, 10, 25, 25)
 
@@ -117,16 +152,16 @@ while running:
         if event.type == pygame.KEYDOWN:
             pass
     # action
-    CurrentMap = player.move(Maps, Frames, CurrentMap)
+    CurrentMapX, CurrentMapY = player.move(Maps, Frames, CurrentMapX, CurrentMapY)
     
     # draw
     screen.fill((0, 0, 0))
     for frame in Frames:
         pygame.draw.rect(screen, (255, 255, 255), frame)
     player.draw(screen)
-    for walls in Maps[0][CurrentMap]:
-        walls.W_draw(screen)
-    for doors in Maps[1][CurrentMap]:
+    for walls in Maps[0][CurrentMapY][CurrentMapX]:
+            walls.W_draw(screen)
+    for doors in Maps[1][CurrentMapY][CurrentMapX]:
         doors.D_draw(screen)
     
     pygame.display.flip()
