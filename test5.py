@@ -90,7 +90,7 @@ class Block:
         self.new_wall = pygame.Rect(x, y, w, h)
         self.new_door = pygame.Rect(x, y, w, h)
         self.W_color = 'White'
-        self.D_color = 'Green'
+        self.D_color = 'Red'
         
     def W_draw(self, screen):
         pygame.draw.rect(screen, self.W_color, self.new_wall)
@@ -104,19 +104,19 @@ Maps = [
     # Walls
     [
         [
-            [Block(100, 100, 25, 300), Block(200, 300, 400, 25)],
-            [Block(200, 500, 400, 25), Block(400, 200, 25, 300)],
-            [Block(100, 100, 25, 300), Block(200, 300, 400, 25)]
+            [Block(100, 100, 25, 300), Block(100, 100, 400, 25)],
+            [Block(200, 200, 400, 25), Block(200, 200, 25, 300)],
+            [Block(300, 300, 25, 300), Block(300, 300, 400, 25)]
         ],
         [
-            [Block(100, 100, 25, 300), Block(200, 300, 400, 25)],
-            [Block(200, 500, 400, 25), Block(400, 200, 25, 300)],
-            [Block(100, 100, 25, 300), Block(200, 300, 400, 25)]
+            [Block(400, 400, 25, 300), Block(400, 400, 400, 25)],
+            [Block(500, 500, 400, 25), Block(500, 500, 25, 300)],
+            [Block(600, 400, 25, 300), Block(400, 400, 400, 25)]
         ],
         [
-            [Block(100, 100, 25, 300), Block(200, 300, 400, 25)],
-            [Block(200, 500, 400, 25), Block(400, 200, 25, 300)],
-            [Block(100, 100, 25, 300), Block(200, 300, 400, 25)]
+            [Block(700, 300, 25, 300), Block(300, 300, 400, 25)],
+            [Block(600, 200, 400, 25), Block(200, 200, 25, 300)],
+            [Block(700, 100, 25, 300), Block(100, 100, 400, 25)]
         ]
     ],
     # Doors
@@ -124,7 +124,7 @@ Maps = [
         [
             [Block(350, HEIGHT - 5, 100, 5), Block(WIDTH - 5, 250, 5, 100)],
             [Block(350, HEIGHT - 5, 100, 5), Block(WIDTH - 5, 250, 5, 100), Block(0, 250, 5, 100)],
-            [Block(5, 250, 5, 100), Block(350, HEIGHT - 5, 100, 5)]
+            [Block(0, 250, 5, 100), Block(350, HEIGHT - 5, 100, 5)]
         ],
         [
             [Block(350, 0, 100, 5), Block(WIDTH - 5, 250, 5, 100), Block(350, HEIGHT - 5, 100, 5)],
@@ -149,8 +149,7 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        if event.type == pygame.KEYDOWN:
-            pass
+        
     # action
     CurrentMapX, CurrentMapY = player.move(Maps, Frames, CurrentMapX, CurrentMapY)
     
