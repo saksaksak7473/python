@@ -12,11 +12,15 @@ class Player:
         self.player = pygame.Rect(x, y, w, h)
         self.color = 'Blue'
         self.speed = 5
+        self.gravity = 0.5
+        self.jump_count = 2
+        self.on_ground = False
     
     def move(self, Maps, Frames, X, Y):
         dx = 0
         dy = 0
         dv = 0
+        self.gravity += 0.3
         
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LSHIFT]:
@@ -25,8 +29,6 @@ class Player:
             dx += self.speed + dv
         if keys[pygame.K_a]:
             dx -= self.speed + dv
-        if keys[pygame.K_w]:
-            dy -= self.speed + dv
         if keys[pygame.K_s]:
             dy += self.speed + dv
         
@@ -54,33 +56,47 @@ class Player:
                     self.player.right = wall.new_wall.left
                 elif dx < 0:
                     self.player.left = wall.new_wall.right
-
-        self.player.y += dy
+                
+        self.player.y += self.gravity    
         doors = Maps[1][Y][X]
         for door in doors:
             if self.player.colliderect(door.new_door):
                 self.player.x, self.player.y = 10, 10
-                if dy > 0:
+                if self.gravity > 0:
                     return X, Y + 1
-                elif dy < 0:
+                elif self.gravity < 0:
                     return X, Y - 1
                 
         for frame in Frames:
             if self.player.colliderect(frame):
-                if dy > 0:
+                if self.gravity > 0:
                     self.player.bottom = frame.top
-                elif dy < 0:
+                    self.gravity = 0
+                    self.on_ground = True
+                    self.jump_count = 2
+                elif self.gravity < 0:
                     self.player.top = frame.bottom
+                    self.gravity = 0
                     
         walls = Maps[0][Y][X]
         for wall in walls:
             if self.player.colliderect(wall.new_wall):
-                if dy > 0:
+                if self.gravity > 0:
                     self.player.bottom = wall.new_wall.top
-                elif dy < 0:
+                    self.gravity = 0
+                    self.on_ground = True
+                    self.jump_count = 2
+                elif self.gravity < 0:
                     self.player.top = wall.new_wall.bottom
-
+                    self.gravity = 0
+                    
         return X, Y
+
+    def getJump(self, isJump):
+        if isJump and self.jump_count > 0:
+            self.gravity = -10
+            self.jump_count -= 1
+            self.on_ground = False
     
     def draw(self, screen):
         pygame.draw.rect(screen, self.color, self.player)
@@ -154,6 +170,10 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                player.getJump(True)
+                
         
     CurrentMapX, CurrentMapY = player.move(Maps, Frames, CurrentMapX, CurrentMapY)
     
