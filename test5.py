@@ -30,7 +30,7 @@ class Player:
         if keys[pygame.K_a]:
             dx -= self.speed + dv
         if keys[pygame.K_s]:
-            dy += self.speed + dv
+            self.gravity = min(self.gravity + 1, 15)
         
         self.player.x += dx
         doors = Maps[1][Y][X]
