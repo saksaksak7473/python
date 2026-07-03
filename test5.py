@@ -9,8 +9,9 @@ clock = pygame.time.Clock()
 
 class Player:
     def __init__(self, x, y, w, h):
-        self.player = pygame.Rect(x, y, w, h)
-        self.color = 'Blue'
+        self.character = pygame.transform.smoothscale(pygame.image.load('Character.png'), (w, h))
+        self.player = self.character.get_rect(topleft = (x, y))
+        self.color = (0, 0, 255)
         self.speed = 5
         self.gravity = 0.5
         self.jump_count = 2
@@ -99,7 +100,7 @@ class Player:
             self.on_ground = False
     
     def draw(self, screen):
-        pygame.draw.rect(screen, self.color, self.player)
+        screen.blit(self.character, self.player)
         
 class Block:
     def __init__(self, x, y, w, h):
@@ -160,11 +161,13 @@ Maps = [
     ]
 ]        
 
+background = pygame.transform.smoothscale(pygame.image.load("Background.jpg").convert(), (800, 600))
+background_rect = background.get_rect(topleft = (0, 0))
 running = True
 CurrentMapX = 0
 CurrentMapY = 0
 
-player = Player(10, 10, 25, 25)
+player = Player(10, 10, 50, 50)
 
 while running:
     for event in pygame.event.get():
@@ -178,6 +181,7 @@ while running:
     CurrentMapX, CurrentMapY = player.move(Maps, Frames, CurrentMapX, CurrentMapY)
     
     screen.fill((0, 0, 0))
+    screen.blit(background, background_rect)
     for frame in Frames:
         pygame.draw.rect(screen, (255, 255, 255), frame)
     player.draw(screen)
