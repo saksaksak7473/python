@@ -98,7 +98,12 @@ class Block:
     def D_draw(self, screen):
         pygame.draw.rect(screen, self.D_color, self.new_door)
         
-Frames = [pygame.Rect(0, 0, 5, HEIGHT - 5), pygame.Rect(0, HEIGHT - 5, WIDTH - 5, 5), pygame.Rect(WIDTH - 5, 0, 5, HEIGHT), pygame.Rect(5, 0, WIDTH - 10, 5)]
+Frames = [
+    pygame.Rect(0, 0, 5, HEIGHT - 5), 
+    pygame.Rect(0, HEIGHT - 5, WIDTH - 5, 5), 
+    pygame.Rect(WIDTH - 5, 0, 5, HEIGHT), 
+    pygame.Rect(5, 0, WIDTH - 10, 5)
+]
         
 Maps = [
     # Walls
