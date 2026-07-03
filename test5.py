@@ -155,10 +155,8 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         
-    # action
     CurrentMapX, CurrentMapY = player.move(Maps, Frames, CurrentMapX, CurrentMapY)
     
-    # draw
     screen.fill((0, 0, 0))
     for frame in Frames:
         pygame.draw.rect(screen, (255, 255, 255), frame)
