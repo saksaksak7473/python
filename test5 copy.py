@@ -13,11 +13,16 @@ class Player:
         self.speed = 5
         self.gravity = 0
         self.jump_count = 2
-        self.on_ground = False
         self.animations = {
-            "idle" : [pygame.transform.smoothscale(pygame.image.load(f"idle/idle{i}.png").convert_alpha(), (w, h)) for i in range(1, 7)],
-            "run" : [pygame.transform.smoothscale(pygame.image.load(f"walk/run{i}.png").convert_alpha(), (w, h)) for i in range(1, 9)]
+            "idle" : [],
+            "run" : []
         }
+        for i in range(1, 7):
+            frame = pygame.transform.smoothscale(pygame.image.load(f"idle/idle{i}.png").convert_alpha(), (w, h))
+            self.animations["idle"].append(frame)
+        for i in range(1, 9):
+            frame = pygame.transform.smoothscale(pygame.image.load(f"walk/run{i}.png").convert_alpha(), (w, h))
+            self.animations["run"].append(frame)
         self.state = "idle"
         self.frame_index = 0
         self.ani_speed = 0
@@ -78,10 +83,8 @@ class Player:
             if self.player.colliderect(frame):
                 if dx > 0:
                     self.player.right = frame.left
-                    self.on_ground = True
                 elif dx < 0:
                     self.player.left = frame.right
-                    self.on_ground = True
                 if self.player.right == frame.left or self.player.left == frame.right:
                     if self.gravity > 0:
                         self.gravity = min(self.gravity + 0.1, 1)
@@ -92,10 +95,8 @@ class Player:
             if self.player.colliderect(wall.new_wall):
                 if dx > 0:
                     self.player.right = wall.new_wall.left
-                    self.on_ground = True
                 elif dx < 0:
                     self.player.left = wall.new_wall.right
-                    self.on_ground = True
                 if self.player.right == wall.new_wall.left or self.player.left == wall.new_wall.right:
                     if self.gravity > 0:
                         self.gravity = min(self.gravity + 0.1, 1)
@@ -116,7 +117,6 @@ class Player:
                 if self.gravity > 0:
                     self.player.bottom = frame.top
                     self.gravity = 0
-                    self.on_ground = True
                     self.jump_count = 2
                 elif self.gravity < 0:
                     self.player.top = frame.bottom
@@ -128,7 +128,6 @@ class Player:
                 if self.gravity > 0:
                     self.player.bottom = wall.new_wall.top
                     self.gravity = 0
-                    self.on_ground = True
                     self.jump_count = 2
                 elif self.gravity < 0:
                     self.player.top = wall.new_wall.bottom
@@ -140,7 +139,7 @@ class Player:
         if isJump and self.jump_count > 0:
             self.gravity = -10
             self.jump_count -= 1
-            self.on_ground = False
+
         
 class Block:
     def __init__(self, x, y, w, h):
