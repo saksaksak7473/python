@@ -14,7 +14,6 @@ class Player:
         self.gravity = 0
         self.jump_count = 2
         self.on_ground = False
-        self.idle_frames = []
         self.animations = {
             "idle" : [pygame.transform.smoothscale(pygame.image.load(f"idle/idle{i}.png").convert_alpha(), (w, h)) for i in range(1, 7)],
             "run" : [pygame.transform.smoothscale(pygame.image.load(f"walk/run{i}.png").convert_alpha(), (w, h)) for i in range(1, 9)]
@@ -22,6 +21,7 @@ class Player:
         self.state = "idle"
         self.frame_index = 0
         self.ani_speed = 0
+        self.flip = False
         self.frame = self.animations[self.state][self.frame_index]
         
         self.player = self.frame.get_rect(topleft = (x, y)) # Player Rect  <------------------
@@ -31,7 +31,11 @@ class Player:
         if self.frame_index >= len(self.animations[self.state]):
             self.frame_index = 0
         else:
-            self.frame = self.animations[self.state][self.frame_index]
+            current_frame = self.animations[self.state][self.frame_index]
+            if self.flip:
+                self.frame = pygame.transform.flip(current_frame, True, False)
+            else:
+                self.frame = current_frame
             if self.ani_speed >= 10:
                 self.ani_speed = 0
                 self.frame_index += 1
@@ -49,9 +53,11 @@ class Player:
             dv += 5
         if keys[pygame.K_d]:
             dx += self.speed + dv
+            self.flip = True
             self.state = "run"
         elif keys[pygame.K_a]:
             dx -= self.speed + dv
+            self.flip = False
             self.state = "run"
         else:
             self.state = "idle"

@@ -1,4 +1,5 @@
 import pygame
+import json
 
 pygame.init()
 
@@ -7,17 +8,47 @@ WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 
-class Player:
-    def __init__(self, x, y, w, h):
+spritesheet_img = pygame.image.load("spritesheet.png").convert_alpha()
 
+with open("spritessheet.json", "r") as f:
+    spritesheet_data = json.load(f)
+
+animations = {
+    "idle": [],
+    "run": []
+}
+
+for sprite in spritesheet_data:
+    name = sprite["name"]
+    x = sprite["x"]
+    y = sprite["y"]
+    w = sprite["width"]
+    h = sprite["height"]
+
+    rect = pygame.Rect(x, y, w, h)
+    frame_surface = spritesheet_img.subsurface(rect)
+
+    scaled_frame = pygame.transform.smoothscale(frame_surface, (50, 50))
+    
+    if name.startswith("idle"):
+        animations["idle"].append(scaled_frame)
+    elif name.startswith("run"):
+        animations["run"].append(scaled_frame)
+
+class Player:
+    def __init__(self, x, y, w, h, animation_dict):
         self.speed = 5
         self.gravity = 0
         self.jump_count = 2
         self.on_ground = False
 
-        self.idle_frames = []
-        self.character = pygame.transform.smoothscale(pygame.image.load("Character.png"), (w, h))
-        self.player = self.character.get_rect(topleft = (x, y))
+        self.animations = animation_dict
+        self.current_state = "idle"
+        self.frame_index = 0
+        self.animation_speed = 0.15 
+        
+        self.player = pygame.Rect(x, y, w, h)
+        self.facing_right = True
     
     def move(self, Maps, Frames, X, Y):
         dx = 0
@@ -29,10 +60,17 @@ class Player:
             dv += 5
         if keys[pygame.K_d]:
             dx += self.speed + dv
+            self.facing_right = True
         if keys[pygame.K_a]:
             dx -= self.speed + dv
+            self.facing_right = False
         if keys[pygame.K_s]:
             self.gravity = min(self.gravity + 1, 15)
+            
+        if dx != 0:
+            self.current_state = "run"
+        else:
+            self.current_state = "idle"
         
         self.player.x += dx
         doors = Maps[1][Y][X]
@@ -112,8 +150,17 @@ class Player:
             self.jump_count -= 1
             self.on_ground = False
             
+    def update_animation(self):
+        self.frame_index += self.animation_speed
+        if self.frame_index >= len(self.animations[self.current_state]):
+            self.frame_index = 0
+            
     def draw(self, screen):
-        screen.blit(self.character, self.player)
+        current_frame = self.animations[self.current_state][int(self.frame_index)]
+        if not self.facing_right:
+            current_frame = pygame.transform.flip(current_frame, True, False)
+            
+        screen.blit(current_frame, self.player)
         
 class Block:
     def __init__(self, x, y, w, h):
@@ -180,7 +227,7 @@ running = True
 CurrentMapX = 0
 CurrentMapY = 0
 
-player = Player(10, 10, 75, 75)
+player = Player(10, 10, 50, 50, animations)
 
 while running:
     for event in pygame.event.get():
@@ -191,6 +238,7 @@ while running:
                 player.getJump(True)
         
     CurrentMapX, CurrentMapY = player.move(Maps, Frames, CurrentMapX, CurrentMapY)
+    player.update_animation() # Add this line to update the frames dynamically
     
     screen.fill((0, 0, 0))
     screen.blit(background, background_rect)
