@@ -135,9 +135,6 @@ class Player:
             self.gravity = -10
             self.jump_count -= 1
             self.on_ground = False
-            
-    def draw(self, screen):
-        screen.blit(self.character, self.player)
         
 class Block:
     def __init__(self, x, y, w, h):
