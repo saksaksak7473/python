@@ -15,15 +15,9 @@ class Player:
         self.jump_count = 2
         self.on_ground = False
         self.animations = {
-            "idle" : [],
-            "run" : []
+            "idle" : [pygame.transform.smoothscale(pygame.image.load(f"idle/idle{i}.png").convert_alpha(), (w, h)) for i in range(1, 7)],
+            "run" : [pygame.transform.smoothscale(pygame.image.load(f"walk/run{i}.png").convert_alpha(), (w, h)) for i in range(1, 9)]
         }
-        for i in range(1, 7):
-            frame = pygame.transform.smoothscale(pygame.image.load(f"idle/idle{i}.png").convert_alpha(), (w, h))
-            self.animations["idle"].append(frame)
-        for i in range(1, 9):
-            frame = pygame.transform.smoothscale(pygame.image.load(f"walk/run{i}.png").convert_alpha(), (w, h))
-            self.animations["run"].append(frame)
         self.state = "idle"
         self.frame_index = 0
         self.ani_speed = 0
@@ -60,17 +54,15 @@ class Player:
         if keys[pygame.K_d]:
             dx += self.speed + dv
             self.flip = True
-        if keys[pygame.K_a]:
+            self.state = "run"
+        elif keys[pygame.K_a]:
             dx -= self.speed + dv
             self.flip = False
             self.state = "run"
-        if keys[pygame.K_s]:
-            self.gravity = min(self.gravity + 1, 15)
-        
-        if dx != 0:
-            self.state = "run"
         else:
             self.state = "idle"
+        if keys[pygame.K_s]:
+            self.gravity = min(self.gravity + 1, 15)
         
         self.player.x += dx
         doors = Maps[1][Y][X]
@@ -209,7 +201,7 @@ Maps = [
     ]
 ]        
 
-background = pygame.transform.smoothscale(pygame.image.load("Background.jpg").convert(), (800, 600))
+background = pygame.transform.smoothscale(pygame.image.load("Background.png").convert(), (800, 600))
 background_rect = background.get_rect(topleft = (0, 0))
 running = True
 CurrentMapX = 0
