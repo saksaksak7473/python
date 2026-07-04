@@ -24,7 +24,7 @@ class Player:
         self.ani_speed = 0
         self.frame = self.animations[self.state][self.frame_index]
         
-        self.player = self.frame.get_rect(topleft = (x, y)) # Player Rect
+        self.player = self.frame.get_rect(topleft = (x, y)) # Player Rect  <------------------
     
     def animate(self, screen):
         self.ani_speed += 1
