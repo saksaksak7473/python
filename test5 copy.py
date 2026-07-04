@@ -15,9 +15,15 @@ class Player:
         self.jump_count = 2
         self.on_ground = False
         self.animations = {
-            "idle" : [pygame.transform.smoothscale(pygame.image.load(f"idle/idle{i}.png").convert_alpha(), (w, h)) for i in range(1, 7)],
-            "run" : [pygame.transform.smoothscale(pygame.image.load(f"walk/run{i}.png").convert_alpha(), (w, h)) for i in range(1, 9)]
+            "idle" : [],
+            "run" : []
         }
+        for i in range(1, 7):
+            frame = pygame.transform.smoothscale(pygame.image.load(f"idle/idle{i}.png").convert_alpha(), (w, h))
+            self.animations["idle"].append(frame)
+        for i in range(1, 9):
+            frame = pygame.transform.smoothscale(pygame.image.load(f"walk/run{i}.png").convert_alpha(), (w, h))
+            self.animations["run"].append(frame)
         self.state = "idle"
         self.frame_index = 0
         self.ani_speed = 0
