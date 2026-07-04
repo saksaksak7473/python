@@ -60,15 +60,16 @@ class Player:
         if keys[pygame.K_d]:
             dx += self.speed + dv
             self.flip = True
-            self.state = "run"
-        elif keys[pygame.K_a]:
+        if keys[pygame.K_a]:
             dx -= self.speed + dv
             self.flip = False
+        if keys[pygame.K_s]:
+            self.gravity = min(self.gravity + 1, 15)
+        
+        if dx != 0:
             self.state = "run"
         else:
             self.state = "idle"
-        if keys[pygame.K_s]:
-            self.gravity = min(self.gravity + 1, 15)
         
         self.player.x += dx
         doors = Maps[1][Y][X]
@@ -201,7 +202,7 @@ Maps = [
     ]
 ]        
 
-background = pygame.transform.smoothscale(pygame.image.load("Background.png").convert(), (800, 600))
+background = pygame.transform.smoothscale(pygame.image.load("Background.jpg").convert(), (800, 600))
 background_rect = background.get_rect(topleft = (0, 0))
 running = True
 CurrentMapX = 0
