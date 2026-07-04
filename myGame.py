@@ -1,54 +1,53 @@
 import pygame
-import json
 
 pygame.init()
 
 WIDTH, HEIGHT = 800, 600
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("My Game")
 clock = pygame.time.Clock()
 
-spritesheet_img = pygame.image.load("spritesheet.png").convert_alpha()
-
-with open("spritessheet.json", "r") as f:
-    spritesheet_data = json.load(f)
-
-animations = {
-    "idle": [],
-    "run": []
-}
-
-for sprite in spritesheet_data:
-    name = sprite["name"]
-    x = sprite["x"]
-    y = sprite["y"]
-    w = sprite["width"]
-    h = sprite["height"]
-
-    rect = pygame.Rect(x, y, w, h)
-    frame_surface = spritesheet_img.subsurface(rect)
-
-    scaled_frame = pygame.transform.smoothscale(frame_surface, (50, 50))
-    
-    if name.startswith("idle"):
-        animations["idle"].append(scaled_frame)
-    elif name.startswith("run"):
-        animations["run"].append(scaled_frame)
-
 class Player:
-    def __init__(self, x, y, w, h, animation_dict):
+    def __init__(self, x, y, w, h):
+
         self.speed = 5
         self.gravity = 0
         self.jump_count = 2
-        self.on_ground = False
-
-        self.animations = animation_dict
-        self.current_state = "idle"
+        self.animations = {
+            "idle" : [],
+            "run" : []
+        }
+        for i in range(1, 7):
+            frame = pygame.transform.smoothscale(pygame.image.load(f"idle/idle{i}.png").convert_alpha(), (w, h))
+            self.animations["idle"].append(frame)
+        for i in range(1, 9):
+            frame = pygame.transform.smoothscale(pygame.image.load(f"walk/run{i}.png").convert_alpha(), (w, h))
+            self.animations["run"].append(frame)
+        self.state = "idle"
         self.frame_index = 0
-        self.animation_speed = 0.15 
+        self.ani_speed = 0
+        self.flip = False
+        self.frame = self.animations[self.state][self.frame_index]
         
-        self.player = pygame.Rect(x, y, w, h)
-        self.facing_right = True
+        self.player = self.frame.get_rect(topleft = (x, y)) # Player Rect  <------------------
+    
+    def animate(self, screen):
+        self.ani_speed += 1
+        if self.frame_index >= len(self.animations[self.state]):
+            self.frame_index = 0
+        else:
+            current_frame = self.animations[self.state][self.frame_index]
+            if self.flip:
+                self.frame = pygame.transform.flip(current_frame, True, False)
+            else:
+                self.frame = current_frame
+            if self.ani_speed >= 10:
+                self.ani_speed = 0
+                self.frame_index += 1
+            
+        screen.blit(self.frame, self.player)
+            
     
     def move(self, Maps, Frames, X, Y):
         dx = 0
@@ -60,17 +59,16 @@ class Player:
             dv += 5
         if keys[pygame.K_d]:
             dx += self.speed + dv
-            self.facing_right = True
-        if keys[pygame.K_a]:
+            self.flip = True
+            self.state = "run"
+        elif keys[pygame.K_a]:
             dx -= self.speed + dv
-            self.facing_right = False
+            self.flip = False
+            self.state = "run"
+        else:
+            self.state = "idle"
         if keys[pygame.K_s]:
             self.gravity = min(self.gravity + 1, 15)
-            
-        if dx != 0:
-            self.current_state = "run"
-        else:
-            self.current_state = "idle"
         
         self.player.x += dx
         doors = Maps[1][Y][X]
@@ -86,10 +84,8 @@ class Player:
             if self.player.colliderect(frame):
                 if dx > 0:
                     self.player.right = frame.left
-                    self.on_ground = True
                 elif dx < 0:
                     self.player.left = frame.right
-                    self.on_ground = True
                 if self.player.right == frame.left or self.player.left == frame.right:
                     if self.gravity > 0:
                         self.gravity = min(self.gravity + 0.1, 1)
@@ -100,10 +96,8 @@ class Player:
             if self.player.colliderect(wall.new_wall):
                 if dx > 0:
                     self.player.right = wall.new_wall.left
-                    self.on_ground = True
                 elif dx < 0:
                     self.player.left = wall.new_wall.right
-                    self.on_ground = True
                 if self.player.right == wall.new_wall.left or self.player.left == wall.new_wall.right:
                     if self.gravity > 0:
                         self.gravity = min(self.gravity + 0.1, 1)
@@ -124,7 +118,6 @@ class Player:
                 if self.gravity > 0:
                     self.player.bottom = frame.top
                     self.gravity = 0
-                    self.on_ground = True
                     self.jump_count = 2
                 elif self.gravity < 0:
                     self.player.top = frame.bottom
@@ -136,7 +129,6 @@ class Player:
                 if self.gravity > 0:
                     self.player.bottom = wall.new_wall.top
                     self.gravity = 0
-                    self.on_ground = True
                     self.jump_count = 2
                 elif self.gravity < 0:
                     self.player.top = wall.new_wall.bottom
@@ -148,19 +140,7 @@ class Player:
         if isJump and self.jump_count > 0:
             self.gravity = -10
             self.jump_count -= 1
-            self.on_ground = False
-            
-    def update_animation(self):
-        self.frame_index += self.animation_speed
-        if self.frame_index >= len(self.animations[self.current_state]):
-            self.frame_index = 0
-            
-    def draw(self, screen):
-        current_frame = self.animations[self.current_state][int(self.frame_index)]
-        if not self.facing_right:
-            current_frame = pygame.transform.flip(current_frame, True, False)
-            
-        screen.blit(current_frame, self.player)
+
         
 class Block:
     def __init__(self, x, y, w, h):
@@ -221,13 +201,13 @@ Maps = [
     ]
 ]        
 
-background = pygame.transform.smoothscale(pygame.image.load("Background.jpg").convert(), (800, 600))
+background = pygame.transform.smoothscale(pygame.image.load("Background.png").convert(), (800, 600))
 background_rect = background.get_rect(topleft = (0, 0))
 running = True
 CurrentMapX = 0
 CurrentMapY = 0
 
-player = Player(10, 10, 50, 50, animations)
+player = Player(10, 10, 75, 75)
 
 while running:
     for event in pygame.event.get():
@@ -238,11 +218,10 @@ while running:
                 player.getJump(True)
         
     CurrentMapX, CurrentMapY = player.move(Maps, Frames, CurrentMapX, CurrentMapY)
-    player.update_animation() # Add this line to update the frames dynamically
     
     screen.fill((0, 0, 0))
     screen.blit(background, background_rect)
-    player.draw(screen)
+    player.animate(screen)
     
     for frame in Frames:
         pygame.draw.rect(screen, (255, 255, 255), frame)
