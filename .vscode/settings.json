@@ -5,5 +5,7 @@
       "args": ["-ExecutionPolicy", "RemoteSigned"]
     }
   },
-  "terminal.integrated.defaultProfile.windows": "PowerShell"
+  "terminal.integrated.defaultProfile.windows": "PowerShell",
+  "python.defaultInterpreterPath": "c:/School/Python/.venv/Scripts/python.exe",
+  "python.terminal.activateEnvironment": true
 }

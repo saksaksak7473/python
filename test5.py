@@ -9,17 +9,37 @@ clock = pygame.time.Clock()
 
 class Player:
     def __init__(self, x, y, w, h):
-        self.character = pygame.transform.smoothscale(pygame.image.load('Character.png'), (w, h))
-        self.player = self.character.get_rect(topleft = (x, y))
-        self.color = (0, 0, 255)
+
         self.speed = 5
-        self.gravity = 0.5
+        self.gravity = 0
         self.jump_count = 2
         self.on_ground = False
+
+        self.idle_frames = []
+        for i in range(1, 7):
+            frame = pygame.transform.smoothscale(pygame.image.load(f"idle/idle{i}.png").convert_alpha(), (w, h))
+            self.idle_frames.append(frame)
+
+        self.idle_frame_index = 0
+        self.frame = self.idle_frames[self.idle_frame_index]
+        self.player = self.frame.get_rect(topleft = (x, y))
+        self.idle_fps = 0
+
+    def idle_ani(self, screen):
+        self.idle_fps += 1
+        if self.idle_fps >= 10:
+            self.idle_fps = 0
+            self.idle_frame_index += 1
+            if self.idle_frame_index >= len(self.idle_frames):
+                self.idle_frame_index = 0
+
+            self.frame = self.idle_frames[self.idle_frame_index]
+
+        screen.blit(self.frame, self.player)
+            
     
     def move(self, Maps, Frames, X, Y):
         dx = 0
-        dy = 0
         dv = 0
         self.gravity += 0.3
         
@@ -47,16 +67,28 @@ class Player:
             if self.player.colliderect(frame):
                 if dx > 0:
                     self.player.right = frame.left
+                    self.on_ground = True
                 elif dx < 0:
                     self.player.left = frame.right
+                    self.on_ground = True
+                if self.player.right == frame.left or self.player.left == frame.right:
+                    if self.gravity > 0:
+                        self.gravity = min(self.gravity + 0.1, 1)
+                    self.jump_count = 2
                     
         walls = Maps[0][Y][X]
         for wall in walls:
             if self.player.colliderect(wall.new_wall):
                 if dx > 0:
                     self.player.right = wall.new_wall.left
+                    self.on_ground = True
                 elif dx < 0:
                     self.player.left = wall.new_wall.right
+                    self.on_ground = True
+                if self.player.right == wall.new_wall.left or self.player.left == wall.new_wall.right:
+                    if self.gravity > 0:
+                        self.gravity = min(self.gravity + 0.1, 1)
+                    self.jump_count = 2
                 
         self.player.y += self.gravity    
         doors = Maps[1][Y][X]
@@ -98,9 +130,6 @@ class Player:
             self.gravity = -10
             self.jump_count -= 1
             self.on_ground = False
-    
-    def draw(self, screen):
-        screen.blit(self.character, self.player)
         
 class Block:
     def __init__(self, x, y, w, h):
@@ -167,7 +196,7 @@ running = True
 CurrentMapX = 0
 CurrentMapY = 0
 
-player = Player(10, 10, 50, 50)
+player = Player(10, 10, 75, 75)
 
 while running:
     for event in pygame.event.get():
@@ -176,15 +205,15 @@ while running:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 player.getJump(True)
-                
         
     CurrentMapX, CurrentMapY = player.move(Maps, Frames, CurrentMapX, CurrentMapY)
     
     screen.fill((0, 0, 0))
     screen.blit(background, background_rect)
+    player.idle_ani(screen)
+    
     for frame in Frames:
         pygame.draw.rect(screen, (255, 255, 255), frame)
-    player.draw(screen)
     for walls in Maps[0][CurrentMapY][CurrentMapX]:
             walls.W_draw(screen)
     for doors in Maps[1][CurrentMapY][CurrentMapX]:
