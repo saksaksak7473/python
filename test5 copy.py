@@ -14,10 +14,30 @@ class Player:
         self.gravity = 0
         self.jump_count = 2
         self.on_ground = False
-
         self.idle_frames = []
-        self.character = pygame.transform.smoothscale(pygame.image.load("Character.png"), (w, h))
-        self.player = self.character.get_rect(topleft = (x, y))
+        self.animations = {
+            "idle" : [pygame.transform.smoothscale(pygame.image.load(f"idle/idle{i}.png").convert_alpha(), (w, h)) for i in range(1, 7)],
+            "run" : [pygame.transform.smoothscale(pygame.image.load(f"walk/run{i}.png").convert_alpha(), (w, h)) for i in range(1, 9)]
+        }
+        self.state = "idle"
+        self.frame_index = 0
+        self.ani_speed = 0
+        self.frame = self.animations[self.state][self.frame_index]
+        
+        self.player = self.frame.get_rect(topleft = (x, y)) # Player Rect
+    
+    def animate(self, screen):
+        self.ani_speed += 1
+        if self.frame_index >= len(self.animations[self.state]):
+            self.frame_index = 0
+        else:
+            self.frame = self.animations[self.state][self.frame_index]
+            if self.ani_speed >= 10:
+                self.ani_speed = 0
+                self.frame_index += 1
+            
+        screen.blit(self.frame, self.player)
+            
     
     def move(self, Maps, Frames, X, Y):
         dx = 0
@@ -29,8 +49,12 @@ class Player:
             dv += 5
         if keys[pygame.K_d]:
             dx += self.speed + dv
-        if keys[pygame.K_a]:
+            self.state = "run"
+        elif keys[pygame.K_a]:
             dx -= self.speed + dv
+            self.state = "run"
+        else:
+            self.state = "idle"
         if keys[pygame.K_s]:
             self.gravity = min(self.gravity + 1, 15)
         
@@ -194,7 +218,7 @@ while running:
     
     screen.fill((0, 0, 0))
     screen.blit(background, background_rect)
-    player.draw(screen)
+    player.animate(screen)
     
     for frame in Frames:
         pygame.draw.rect(screen, (255, 255, 255), frame)
