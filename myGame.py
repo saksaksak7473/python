@@ -10,7 +10,6 @@ clock = pygame.time.Clock()
 
 class Player:
     def __init__(self, x, y, w, h):
-
         self.speed = 5
         self.gravity = 0
         self.jump_count = 2
@@ -26,7 +25,7 @@ class Player:
             frame = pygame.transform.smoothscale(pygame.image.load(f"walk/run{i}.png").convert_alpha(), (w, h))
             self.animations["run"].append(frame)
         for i in range(2, 5):
-            frame = pygame.transform.smoothscale(pygame.image.load(f"wall_impact/wall_impact{i}.png").convert_alpha(), (w, h))
+            frame = pygame.transform.smoothscale(pygame.image.load(f"wall_impact/wall_impact{i}.png").convert_alpha(), (55, h))
             self.animations["wall_impact"].append(frame)
         self.state = "idle"
         self.frame_index = 0
@@ -34,7 +33,7 @@ class Player:
         self.flip = False
         self.frame = self.animations[self.state][self.frame_index]
         
-        self.player = self.frame.get_rect(topleft = (x, y)) # Player Rect  <------------------
+        self.player = self.frame.get_rect(midbottom = (x, y)) # Player Rect  <------------------
     
     def animate(self, screen):
         self.ani_speed += 1
@@ -42,8 +41,10 @@ class Player:
             self.frame_index = 0
         else:
             current_frame = self.animations[self.state][self.frame_index]
+            current_topright = self.player.topright
             if self.flip:
                 self.frame = pygame.transform.flip(current_frame, True, False)
+                self.player = self.frame.get_rect(topright = current_topright)
             else:
                 self.frame = current_frame
             if self.ani_speed >= 10:
@@ -51,7 +52,6 @@ class Player:
                 self.frame_index += 1
             
         screen.blit(self.frame, self.player)
-            
     
     def move(self, Maps, Frames, X, Y):
         dx = 0
@@ -79,7 +79,7 @@ class Player:
         doors = Maps[1][Y][X]
         for door in doors:
             if self.player.colliderect(door.new_door):
-                self.player.x, self.player.y = 10, 10
+                self.player.x, self.player.y = WIDTH / 2, HEIGHT / 2
                 if dx > 0:
                     return X + 1, Y
                 elif dx < 0:
@@ -114,7 +114,7 @@ class Player:
         doors = Maps[1][Y][X]
         for door in doors:
             if self.player.colliderect(door.new_door):
-                self.player.x, self.player.y = 10, 10
+                self.player.x, self.player.y = WIDTH / 2, HEIGHT / 2
                 if self.gravity > 0:
                     return X, Y + 1
                 elif self.gravity < 0:
@@ -214,7 +214,7 @@ running = True
 CurrentMapX = 0
 CurrentMapY = 0
 
-player = Player(10, 10, 75, 75)
+player = Player(WIDTH / 2, HEIGHT / 2, 75, 75)
 
 while running:
     for event in pygame.event.get():
