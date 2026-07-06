@@ -16,7 +16,8 @@ class Player:
         self.jump_count = 2
         self.animations = {
             "idle" : [],
-            "run" : []
+            "run" : [],
+            "wall_impact" : []
         }
         for i in range(1, 7):
             frame = pygame.transform.smoothscale(pygame.image.load(f"idle/idle{i}.png").convert_alpha(), (w, h))
@@ -24,6 +25,9 @@ class Player:
         for i in range(1, 9):
             frame = pygame.transform.smoothscale(pygame.image.load(f"walk/run{i}.png").convert_alpha(), (w, h))
             self.animations["run"].append(frame)
+        for i in range(2, 5):
+            frame = pygame.transform.smoothscale(pygame.image.load(f"wall_impact/wall_impact{i}.png").convert_alpha(), (w, h))
+            self.animations["wall_impact"].append(frame)
         self.state = "idle"
         self.frame_index = 0
         self.ani_speed = 0
@@ -83,6 +87,7 @@ class Player:
                 
         for frame in Frames:
             if self.player.colliderect(frame):
+                self.state = "wall_impact"
                 if dx > 0:
                     self.player.right = frame.left
                 elif dx < 0:
@@ -95,6 +100,7 @@ class Player:
         walls = Maps[0][Y][X]
         for wall in walls:
             if self.player.colliderect(wall.new_wall):
+                self.state = "wall_impact"
                 if dx > 0:
                     self.player.right = wall.new_wall.left
                 elif dx < 0:
