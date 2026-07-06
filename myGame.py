@@ -183,7 +183,7 @@ Maps = [
             [Block(600, 400, 25, 300), Block(400, 400, 400, 25)] # Walls in Map 6
         ],
         [
-            [Block(700, 300, 25, 300), Block(300, 300, 400, 25)], # Walls in Map 7
+            [Block(100, 300, 25, 300), Block(200, 500, 400, 25)], # Walls in Map 7
             [Block(600, 200, 400, 25), Block(200, 200, 25, 300)], # Walls in Map 8
             [Block(700, 100, 25, 300), Block(100, 100, 400, 25)] # Walls in Map 9
         ]
