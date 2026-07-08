@@ -1,0 +1,1 @@
+self.frame = pygame.transform.flip(current_frame, True, False)

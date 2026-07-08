@@ -13,10 +13,14 @@ class Player:
         self.speed = 5
         self.gravity = 0
         self.jump_count = 2
+        self.isJump = False
+        self.on_ground = True
         self.animations = {
             "idle" : [],
             "run" : [],
-            "wall_impact" : []
+            "wall_impact" : [],
+            "jump(anticipate)" : [],
+            "jump" : []
         }
         for i in range(1, 7):
             frame = pygame.transform.smoothscale(pygame.image.load(f"idle/idle{i}.png").convert_alpha(), (w, h))
@@ -25,38 +29,58 @@ class Player:
             frame = pygame.transform.smoothscale(pygame.image.load(f"walk/run{i}.png").convert_alpha(), (w, h))
             self.animations["run"].append(frame)
         for i in range(2, 5):
-            frame = pygame.transform.smoothscale(pygame.image.load(f"wall_impact/wall_impact{i}.png").convert_alpha(), (55, h))
+            frame = pygame.transform.smoothscale(pygame.image.load(f"wall_impact/wall_impact{i}.png").convert_alpha(), (35, h))
             self.animations["wall_impact"].append(frame)
+        for i in range(1, 5):
+            frame = pygame.transform.smoothscale(pygame.image.load(f"jump(anticipate)/jump{i}.png").convert_alpha(), (w, h))
+            self.animations["jump(anticipate)"].append(frame)
+        for i in range(1, 10):
+            frame = pygame.transform.smoothscale(pygame.image.load(f"jump/jum{i}.png").convert_alpha(), (w, h))
+            self.animations["jump"].append(frame)
         self.state = "idle"
+        self.prev_state = self.state
         self.frame_index = 0
         self.ani_speed = 0
         self.flip = False
         self.frame = self.animations[self.state][self.frame_index]
         
-        self.player = self.frame.get_rect(midbottom = (x, y)) # Player Rect  <------------------
+        self.player = self.frame.get_rect(center = (x, y)) # Player Rect  <------------------
     
     def animate(self, screen):
+        if self.prev_state != self.state:
+            self.ani_speed = 0
+            self.frame_index = 0
+            self.prev_state = self.state
+        # Check if the animation is ran out of frame first
         self.ani_speed += 1
         if self.frame_index >= len(self.animations[self.state]):
             self.frame_index = 0
+        # if not, continue the animation
+        current_frame = self.animations[self.state][self.frame_index]
+        if self.flip:
+            self.frame = pygame.transform.flip(current_frame, True, False)
+            self.frame_rect = self.frame.get_rect(topright = self.player.topright) 
         else:
-            current_frame = self.animations[self.state][self.frame_index]
-            current_topright = self.player.topright
-            if self.flip:
-                self.frame = pygame.transform.flip(current_frame, True, False)
-                self.player = self.frame.get_rect(topright = current_topright)
+            self.frame = current_frame
+            self.frame_rect = self.frame.get_rect(topleft = self.player.topleft) 
+        if self.ani_speed >= 10:
+            self.ani_speed = 0
+            if self.state == "jump":
+                self.frame_index = min(self.frame_index + 1, 8)
+            elif self.state == "jump(anticipate)":
+                if self.gravity < 0:
+                    self.frame_index = min(self.frame_index + 1, 2)
+                elif self.gravity > 0:
+                    self.frame_index = max(self.frame_index - 1, 0)
             else:
-                self.frame = current_frame
-            if self.ani_speed >= 10:
-                self.ani_speed = 0
                 self.frame_index += 1
-            
-        screen.blit(self.frame, self.player)
+                
+        screen.blit(self.frame, self.frame_rect)
     
     def move(self, Maps, Frames, X, Y):
         dx = 0
         dv = 0
-        self.gravity += 0.3
+        self.gravity += 0.2
         
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LSHIFT]:
@@ -69,10 +93,17 @@ class Player:
             self.flip = False
         if keys[pygame.K_s]:
             self.gravity = min(self.gravity + 1, 15)
+            
+        if self.gravity < 0:
+            self.on_ground = False
         
-        if dx != 0:
+        if not self.on_ground:
+            self.state = "jump(anticipate)"
+            if dx != 0:
+                self.state = "jump"
+        elif dx != 0:
             self.state = "run"
-        else:
+        else:            
             self.state = "idle"
         
         self.player.x += dx
@@ -126,6 +157,7 @@ class Player:
                     self.player.bottom = frame.top
                     self.gravity = 0
                     self.jump_count = 2
+                    self.on_ground = True
                 elif self.gravity < 0:
                     self.player.top = frame.bottom
                     self.gravity = 0
@@ -137,6 +169,7 @@ class Player:
                     self.player.bottom = wall.new_wall.top
                     self.gravity = 0
                     self.jump_count = 2
+                    self.on_ground = True
                 elif self.gravity < 0:
                     self.player.top = wall.new_wall.bottom
                     self.gravity = 0
@@ -144,8 +177,10 @@ class Player:
         return X, Y
 
     def getJump(self, isJump):
+        self.isJump = isJump
         if isJump and self.jump_count > 0:
-            self.gravity = -10
+            self.on_ground = False
+            self.gravity = -7.5
             self.jump_count -= 1
 
         
@@ -173,7 +208,7 @@ Maps = [
     # Walls
     [
         [
-            [Block(100, 100, 25, 300), Block(100, 100, 400, 25)], # Walls in Map 1
+            [Block(200, 100, 25, 300), Block(200, 100, 400, 25)], # Walls in Map 1
             [Block(200, 200, 400, 25), Block(200, 200, 25, 300)], # Walls in Map 2
             [Block(300, 300, 25, 300), Block(300, 300, 400, 25)] # Walls in Map 3
         ],
@@ -214,7 +249,7 @@ running = True
 CurrentMapX = 0
 CurrentMapY = 0
 
-player = Player(WIDTH / 2, HEIGHT / 2, 75, 75)
+player = Player(WIDTH // 2, HEIGHT // 2, 50, 50)
 
 while running:
     for event in pygame.event.get():
