@@ -25,19 +25,19 @@ class Player:
             "flourish" : []
         }
         for i in range(1, 7):
-            frame = pygame.transform.smoothscale(pygame.image.load(f"idle/idle{i}.png").convert_alpha(), (w, 50))
+            frame = pygame.transform.smoothscale(pygame.image.load(f"idle/idle{i}.png").convert_alpha(), (w, h - 50))
             self.animations["idle"].append(frame)
         for i in range(1, 9):
-            frame = pygame.transform.smoothscale(pygame.image.load(f"walk/run{i}.png").convert_alpha(), (w, 50))
+            frame = pygame.transform.smoothscale(pygame.image.load(f"walk/run{i}.png").convert_alpha(), (w, h - 50))
             self.animations["run"].append(frame)
         for i in range(2, 5):
-            frame = pygame.transform.smoothscale(pygame.image.load(f"wall_impact/wall_impact{i}.png").convert_alpha(), (33, 50))
+            frame = pygame.transform.smoothscale(pygame.image.load(f"wall_impact/wall_impact{i}.png").convert_alpha(), (33, h - 50))
             self.animations["wall_impact"].append(frame)
         for i in range(1, 5):
-            frame = pygame.transform.smoothscale(pygame.image.load(f"jump(anticipate)/jump{i}.png").convert_alpha(), (w, 50))
+            frame = pygame.transform.smoothscale(pygame.image.load(f"jump(anticipate)/jump{i}.png").convert_alpha(), (w, h - 50))
             self.animations["jump(anticipate)"].append(frame)
         for i in range(1, 10):
-            frame = pygame.transform.smoothscale(pygame.image.load(f"jump/jum{i}.png").convert_alpha(), (w, 50))
+            frame = pygame.transform.smoothscale(pygame.image.load(f"jump/jum{i}.png").convert_alpha(), (w, h - 50))
             self.animations["jump"].append(frame)
         for i in range(2, 14):
             frame = pygame.transform.smoothscale(pygame.image.load(f"flourish/flourish{i}.png").convert_alpha(), (95, 75))
@@ -68,7 +68,7 @@ class Player:
         else:
             self.frame = current_frame
             self.frame_rect = self.frame.get_rect(bottomleft = self.player.bottomleft) 
-        if self.ani_speed >= 10:
+        if self.ani_speed >= 5:
             self.ani_speed = 0
             if self.isAttack:
                 self.frame_index += 1
@@ -81,7 +81,6 @@ class Player:
                     self.frame_index = max(self.frame_index - 1, 0)
             else:
                 self.frame_index += 1
-                
                 
         screen.blit(self.frame, self.frame_rect)
     
@@ -108,13 +107,13 @@ class Player:
         if self.isAttack:
             if self.frame_index >= len(self.animations[self.state]):
                 self.isAttack = False
-        elif not self.on_ground:
+        elif not self.on_ground or self.gravity > 1:
             self.state = "jump(anticipate)"
             if dx != 0:
                 self.state = "jump"
         elif dx != 0:
             self.state = "run"
-        else:            
+        else:
             self.state = "idle"
         
         self.player.x += dx
