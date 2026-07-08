@@ -15,28 +15,33 @@ class Player:
         self.jump_count = 2
         self.isJump = False
         self.on_ground = True
+        self.isAttack = False
         self.animations = {
             "idle" : [],
             "run" : [],
             "wall_impact" : [],
             "jump(anticipate)" : [],
-            "jump" : []
+            "jump" : [],
+            "flourish" : []
         }
         for i in range(1, 7):
-            frame = pygame.transform.smoothscale(pygame.image.load(f"idle/idle{i}.png").convert_alpha(), (w, h))
+            frame = pygame.transform.smoothscale(pygame.image.load(f"idle/idle{i}.png").convert_alpha(), (w, 50))
             self.animations["idle"].append(frame)
         for i in range(1, 9):
-            frame = pygame.transform.smoothscale(pygame.image.load(f"walk/run{i}.png").convert_alpha(), (w, h))
+            frame = pygame.transform.smoothscale(pygame.image.load(f"walk/run{i}.png").convert_alpha(), (w, 50))
             self.animations["run"].append(frame)
         for i in range(2, 5):
-            frame = pygame.transform.smoothscale(pygame.image.load(f"wall_impact/wall_impact{i}.png").convert_alpha(), (35, h))
+            frame = pygame.transform.smoothscale(pygame.image.load(f"wall_impact/wall_impact{i}.png").convert_alpha(), (33, 50))
             self.animations["wall_impact"].append(frame)
         for i in range(1, 5):
-            frame = pygame.transform.smoothscale(pygame.image.load(f"jump(anticipate)/jump{i}.png").convert_alpha(), (w, h))
+            frame = pygame.transform.smoothscale(pygame.image.load(f"jump(anticipate)/jump{i}.png").convert_alpha(), (w, 50))
             self.animations["jump(anticipate)"].append(frame)
         for i in range(1, 10):
-            frame = pygame.transform.smoothscale(pygame.image.load(f"jump/jum{i}.png").convert_alpha(), (w, h))
+            frame = pygame.transform.smoothscale(pygame.image.load(f"jump/jum{i}.png").convert_alpha(), (w, 50))
             self.animations["jump"].append(frame)
+        for i in range(2, 14):
+            frame = pygame.transform.smoothscale(pygame.image.load(f"flourish/flourish{i}.png").convert_alpha(), (95, 75))
+            self.animations["flourish"].append(frame)
         self.state = "idle"
         self.prev_state = self.state
         self.frame_index = 0
@@ -44,7 +49,7 @@ class Player:
         self.flip = False
         self.frame = self.animations[self.state][self.frame_index]
         
-        self.player = self.frame.get_rect(center = (x, y)) # Player Rect  <------------------
+        self.player = self.frame.get_rect(midbottom = (x, y)) # Player Rect  <------------------
     
     def animate(self, screen):
         if self.prev_state != self.state:
@@ -59,13 +64,15 @@ class Player:
         current_frame = self.animations[self.state][self.frame_index]
         if self.flip:
             self.frame = pygame.transform.flip(current_frame, True, False)
-            self.frame_rect = self.frame.get_rect(topright = self.player.topright) 
+            self.frame_rect = self.frame.get_rect(bottomright = self.player.bottomright) 
         else:
             self.frame = current_frame
-            self.frame_rect = self.frame.get_rect(topleft = self.player.topleft) 
+            self.frame_rect = self.frame.get_rect(bottomleft = self.player.bottomleft) 
         if self.ani_speed >= 10:
             self.ani_speed = 0
-            if self.state == "jump":
+            if self.isAttack:
+                self.frame_index += 1
+            elif self.state == "jump":
                 self.frame_index = min(self.frame_index + 1, 8)
             elif self.state == "jump(anticipate)":
                 if self.gravity < 0:
@@ -74,6 +81,7 @@ class Player:
                     self.frame_index = max(self.frame_index - 1, 0)
             else:
                 self.frame_index += 1
+                
                 
         screen.blit(self.frame, self.frame_rect)
     
@@ -97,7 +105,10 @@ class Player:
         if self.gravity < 0:
             self.on_ground = False
         
-        if not self.on_ground:
+        if self.isAttack:
+            if self.frame_index >= len(self.animations[self.state]):
+                self.isAttack = False
+        elif not self.on_ground:
             self.state = "jump(anticipate)"
             if dx != 0:
                 self.state = "jump"
@@ -121,8 +132,10 @@ class Player:
                 self.state = "wall_impact"
                 if dx > 0:
                     self.player.right = frame.left
+                    self.isAttack = False
                 elif dx < 0:
                     self.player.left = frame.right
+                    self.isAttack = False
                 if self.player.right == frame.left or self.player.left == frame.right:
                     if self.gravity > 0:
                         self.gravity = min(self.gravity + 0.1, 1)
@@ -134,8 +147,10 @@ class Player:
                 self.state = "wall_impact"
                 if dx > 0:
                     self.player.right = wall.new_wall.left
+                    self.isAttack = False
                 elif dx < 0:
                     self.player.left = wall.new_wall.right
+                    self.isAttack = False
                 if self.player.right == wall.new_wall.left or self.player.left == wall.new_wall.right:
                     if self.gravity > 0:
                         self.gravity = min(self.gravity + 0.1, 1)
@@ -174,15 +189,7 @@ class Player:
                     self.player.top = wall.new_wall.bottom
                     self.gravity = 0
                     
-        return X, Y
-
-    def getJump(self, isJump):
-        self.isJump = isJump
-        if isJump and self.jump_count > 0:
-            self.on_ground = False
-            self.gravity = -7.5
-            self.jump_count -= 1
-
+        return X, Y        
         
 class Block:
     def __init__(self, x, y, w, h):
@@ -249,7 +256,7 @@ running = True
 CurrentMapX = 0
 CurrentMapY = 0
 
-player = Player(WIDTH // 2, HEIGHT // 2, 50, 50)
+player = Player(WIDTH / 2, HEIGHT / 2, 50, 100)
 
 while running:
     for event in pygame.event.get():
@@ -257,7 +264,14 @@ while running:
             running = False
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
-                player.getJump(True)
+                player.isJump = True
+                if player.jump_count > 0:
+                    player.on_ground = False
+                    player.gravity = -7.5
+                    player.jump_count -= 1
+            if event.key == pygame.K_f:
+                player.state = "flourish"
+                player.isAttack = True
         
     CurrentMapX, CurrentMapY = player.move(Maps, Frames, CurrentMapX, CurrentMapY)
     
